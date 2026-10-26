@@ -1,0 +1,123 @@
+-- ==============================================================================
+-- CivicSnap Seed Data
+-- Verified Civic Authorities with Jurisdiction, Categories, and Submission Modes
+-- ==============================================================================
+
+INSERT INTO public.authorities (
+  id, name, department, jurisdiction, state, district, city, supported_categories,
+  submission_mode, submission_endpoint, portal_url, helpdesk_phone, helpdesk_email,
+  required_fields, sla_hours, is_verified
+) VALUES
+(
+  'auth_delhi_mcd_sanitation',
+  'Municipal Corporation of Delhi (MCD)',
+  'Department of Environment Management Services (DEMS)',
+  'National Capital Territory of Delhi',
+  'Delhi',
+  'Central Delhi',
+  'New Delhi',
+  ARRAY['GARBAGE_DUMP', 'DRAINAGE_OVERFLOW'],
+  'ASSISTED_PORTAL',
+  NULL,
+  'https://mcdonline.nic.in/citizen/',
+  '155305',
+  'dems-mcd@nic.in',
+  ARRAY['photo', 'gps_coordinates', 'detailed_landmark', 'contact_number'],
+  48,
+  TRUE
+),
+(
+  'auth_delhi_pwd_roads',
+  'Public Works Department (PWD) Delhi',
+  'Road Infrastructure & Maintenance Division',
+  'National Capital Territory of Delhi',
+  'Delhi',
+  'New Delhi',
+  'New Delhi',
+  ARRAY['POTHOLE', 'DAMAGED_SIDEWALK', 'BROKEN_STREETLIGHT'],
+  'ASSISTED_PORTAL',
+  NULL,
+  'https://delhipwd.gov.in/complaint.jsp',
+  '1800-11-0093',
+  'support-pwd@delhi.gov.in',
+  ARRAY['photo', 'gps_coordinates', 'road_name', 'nearest_metro_pillar'],
+  72,
+  TRUE
+),
+(
+  'auth_delhi_djb_water',
+  'Delhi Jal Board (DJB)',
+  'Water Supply & Sewerage Directorate',
+  'National Capital Territory of Delhi',
+  'Delhi',
+  'South Delhi',
+  'New Delhi',
+  ARRAY['WATER_LEAKAGE', 'DRAINAGE_OVERFLOW'],
+  'ASSISTED_PORTAL',
+  NULL,
+  'https://djb.gov.in/DJBCustomerPortal/',
+  '1916',
+  'customer-djb@delhi.gov.in',
+  ARRAY['photo', 'gps_coordinates', 'pipeline_location'],
+  36,
+  TRUE
+),
+(
+  'auth_bbmp_bengaluru',
+  'Bruhat Bengaluru Mahanagara Palike (BBMP)',
+  'FixMyStreet / Road Infrastructure Cell',
+  'Bengaluru Urban District',
+  'Karnataka',
+  'Bengaluru Urban',
+  'Bengaluru',
+  ARRAY['POTHOLE', 'GARBAGE_DUMP', 'BROKEN_STREETLIGHT', 'DAMAGED_SIDEWALK', 'FALLEN_TREE'],
+  'ASSISTED_PORTAL',
+  NULL,
+  'https://site.bbmp.gov.in/complaints.html',
+  '080-22660000',
+  'comm@bbmp.gov.in',
+  ARRAY['photo', 'gps_coordinates', 'ward_number'],
+  48,
+  TRUE
+),
+(
+  'auth_national_swachhata',
+  'Ministry of Housing & Urban Affairs (MoHUA)',
+  'Swachhata Civic Grievance Cell',
+  'Pan-India Municipalities',
+  'All',
+  'All',
+  NULL,
+  ARRAY['GARBAGE_DUMP', 'DRAINAGE_OVERFLOW'],
+  'ASSISTED_PORTAL',
+  NULL,
+  'https://swachhata.mohua.gov.in/',
+  '1969',
+  'swachhbharat@gov.in',
+  ARRAY['photo', 'gps_coordinates', 'pincode'],
+  24,
+  TRUE
+),
+(
+  'auth_civicsnap_test_sandbox',
+  'CivicSnap Open Municipal Sandbox (Test Node)',
+  'Smart City Direct API Gateway',
+  'Universal Testing Jurisdiction (Delhi NCR / Bengaluru)',
+  'Test State',
+  'Test District',
+  'Smart Metropolis',
+  ARRAY['POTHOLE', 'GARBAGE_DUMP', 'BROKEN_STREETLIGHT', 'WATER_LEAKAGE', 'DRAINAGE_OVERFLOW', 'DAMAGED_SIDEWALK', 'FALLEN_TREE', 'OTHER'],
+  'DIRECT_API',
+  'http://localhost:4000/api/mock-authority/receive',
+  'http://localhost:4000/portal/sandbox',
+  '1800-000-SNAP',
+  'sandbox@civicsnap.org',
+  ARRAY['photo', 'gps_coordinates'],
+  24,
+  TRUE
+)
+ON CONFLICT (id) DO UPDATE SET
+  name = EXCLUDED.name,
+  supported_categories = EXCLUDED.supported_categories,
+  submission_mode = EXCLUDED.submission_mode,
+  portal_url = EXCLUDED.portal_url;

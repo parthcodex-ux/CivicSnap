@@ -1,0 +1,26 @@
+{
+  "name": "civicsnap-root",
+  "version": "1.0.0",
+  "private": true,
+  "description": "CivicSnap — Production-Grade AI Civic Complaint Platform",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:server": "npm --workspace=@civicsnap/server run dev",
+    "dev:client": "npm --workspace=@civicsnap/client run dev",
+    "dev": "npm --workspace=@civicsnap/server run dev",
+    "build": "npm --workspace=@civicsnap/shared run build && npm --workspace=@civicsnap/server run build && npm --workspace=@civicsnap/client run build",
+    "test": "npm --workspace=@civicsnap/shared run test && npm --workspace=@civicsnap/server run test",
+    "lint": "npm --workspace=@civicsnap/server run lint && npm --workspace=@civicsnap/client run lint"
+  },
+  "keywords": [
+    "civic-tech",
+    "gemma-4",
+    "ai",
+    "supabase",
+    "complaint-system"
+  ],
+  "author": "CivicSnap Team",
+  "license": "MIT"
+}
