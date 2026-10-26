@@ -14,3 +14,4 @@ analyticsRouter.get('/resolution', async (req, res, next) => {
     next(err);
   }
 });
+

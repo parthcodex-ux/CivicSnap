@@ -218,3 +218,4 @@ export const ComplaintList: React.FC<ComplaintListProps> = ({ lang, onNewReport 
     </div>
   );
 };
+

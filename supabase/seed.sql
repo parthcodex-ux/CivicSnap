@@ -121,3 +121,4 @@ ON CONFLICT (id) DO UPDATE SET
   supported_categories = EXCLUDED.supported_categories,
   submission_mode = EXCLUDED.submission_mode,
   portal_url = EXCLUDED.portal_url;
+

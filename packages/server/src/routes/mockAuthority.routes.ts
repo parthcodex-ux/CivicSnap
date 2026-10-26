@@ -17,3 +17,4 @@ mockAuthorityRouter.post('/receive', (req, res) => {
     acknowledgement: 'Your civic grievance has been officially queued in the municipal direct dispatch roster.'
   });
 });
+

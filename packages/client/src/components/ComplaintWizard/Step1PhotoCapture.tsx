@@ -177,3 +177,4 @@ export const Step1PhotoCapture: React.FC<Step1Props> = ({ onPhotoSelected, lang 
     </div>
   );
 };
+

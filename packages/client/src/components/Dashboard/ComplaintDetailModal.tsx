@@ -175,3 +175,4 @@ export const ComplaintDetailModal: React.FC<DetailModalProps> = ({
     </div>
   );
 };
+

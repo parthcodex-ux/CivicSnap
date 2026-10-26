@@ -71,3 +71,4 @@ describe('Shared Schema Contracts', () => {
     expect(parsed.confidenceLabel).toBe('HIGH');
   });
 });
+

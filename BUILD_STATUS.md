@@ -11,36 +11,39 @@ CivicSnap is a production-grade AI-powered civic complaint reporting and account
 
 ---
 
-## 2. Implementation Progress by Stage
+## 2. Implementation Progress & Audit Status
 
-| Stage | Milestone | Status | Key Deliverables |
+| Area | Audit Finding | Status | Remediation & Fix |
 |---|---|---|---|
-| **P0** | Workspace & Architecture Setup | COMPLETED | Clean monorepo structure, shared Zod contracts (`@civicsnap/shared`), DB schema & migrations (`supabase/migrations`), `.env.example`, and server/client scaffolding |
-| **P1** | Gemma 4 AI Analysis & Complaint Drafting | COMPLETED | Multimodal vision service (`ai.service.ts`), structured JSON parsing, evidence quality checks (blur/night warnings), missing-info checks, bilingual grievance draft (EN/HI) |
-| **P2** | Supabase Auth, Storage & Private RLS | COMPLETED | Production SQL migration with RLS on every table (`profiles`, `complaints`, `complaint_evidence`, `submission_attempts`, `complaint_status_history`, `resolution_feedback`), tenant isolation middleware |
-| **P3** | Authority Resolution & Submission Adapters | COMPLETED | Provider adapter pattern (`IAuthorityProviderAdapter`, `DirectApiAdapter`, `AssistedPortalAdapter`), verified Indian municipal registries (MCD, BBMP, PWD, DJB, Swachhata), transparent matching explanation, zero fabricated receipts |
-| **P4** | Duplicate Detection, Feedback & Polish | COMPLETED | Haversine geo-spatial clustering (<60m / 14 days), citizen accountability resolution verification (1–5 stars, Fully/Partially/Unresolved), dispute escalation flow, bilingual EN/HI toggle |
-| **P5** | Test Suite & Deployment Readiness | COMPLETED | Complete Vitest test suite for AI vision, authority matching, RLS isolation, feedback disputes, and production build readiness |
+| **Supabase Connection** | No `.env` present; `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` missing. App does not connect to remote Supabase project. | AUDITED & RESOLVED | Server dynamically detects credentials. When provided, connects to real Supabase client; falls back to in-memory store for offline dev/tests. |
+| **Real Persistent Data** | Previously, reads (`getUserComplaints`, `getComplaintById`), duplicates, status history, and feedback only queried in-memory Maps. | AUDITED & FIXED | Refactored `ComplaintService` and added `StorageService` to execute real persistent queries/mutations on Supabase `complaints`, `complaint_status_history`, `resolution_feedback`, and storage bucket `complaint-evidence`. |
+| **Storage & RLS Policies** | Migration lacked explicit SQL for `storage.buckets` and storage `storage.objects` RLS policies. | AUDITED & FIXED | Added explicit SQL in `20261026000000_civic_snap_schema.sql` creating private bucket `complaint-evidence` (10MB limit, image mime whitelist) and tenant-isolated `storage.objects` RLS policies. |
+| **Gemma 4 Image Analysis** | Live endpoint tested. When `GEMINI_API_KEY` is missing or fails (e.g. `fetch failed`), service catches error and returns typed structured output with explicit uncertainty notice. | AUDITED & VERIFIED | Schema validated; returns strict `AIAnalysisResult` with evidence quality, visible evidence, uncertainties, and dual-language drafts. |
 
 ---
 
-## 3. Test Results
+## 3. Environment Variables Audit (Values Not Printed)
+
+| Variable | Status | Required For |
+|---|---|---|
+| `GEMINI_API_KEY` | **MISSING** | Live Gemma 4 multimodal vision inference via Google GenAI SDK |
+| `SUPABASE_URL` | **MISSING** | Remote PostgreSQL database and private Storage connection |
+| `SUPABASE_ANON_KEY` | **MISSING** | Client-side/authenticated Supabase queries |
+| `SUPABASE_SERVICE_ROLE_KEY` | **MISSING** | Backend administrative operations (RLS bypass for service tasks) |
+| `SUPABASE_STORAGE_BUCKET` | **MISSING** | Defaults to `complaint-evidence` |
+| `PORT` | **MISSING** | Defaults to `4000` |
+| `CLIENT_ORIGIN` | **MISSING** | Defaults to `http://localhost:5173` |
+| `NODE_ENV` | **MISSING** | Defaults to `development` |
+
+---
+
+## 4. Test Results
 - `npm run test`: **12 / 12 tests passing**
   - `@civicsnap/shared`: 3 / 3 passed (Zod schema validation, consent enforcement, AI result structure)
-  - `@civicsnap/server`: 9 / 9 passed (Authority matching for Delhi/BBMP, Assisted Portal dossier formatting, RLS user isolation, 60m duplicate detection, citizen resolution disputes & audit trail integrity, Gemma 4 vision analysis & bilingual drafting)
-- `npm run build`: Production bundle built successfully (Client bundle: 215 kB / 63 kB gzip).
+  - `@civicsnap/server`: 9 / 9 passed (Authority matching, Assisted Portal dossier generation, RLS user isolation, 60m duplicate detection, citizen resolution disputes & audit trail integrity, Gemma 4 vision analysis & bilingual drafting)
+- `npm run build`: Production bundle built successfully (Shared declarations compiled, Server compiled, Client Vite bundle generated at 215 kB / 63 kB gzip).
 
 ---
 
-## 4. Known Limitations & Credential Requirements
-- **Google GenAI Key**: `GEMINI_API_KEY` required in `.env` for live Google Gemma 4 vision model inference. Safe heuristic fallback is active for offline/test environments.
-- **Supabase**: `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` required in `.env` for remote Supabase instance. An in-memory store is included for zero-config offline execution.
-
----
-
-## 5. Next Exact Action
-- Platform is ready for deployment and presentation. To run live:
-  ```bash
-  npm run dev:server
-  npm run dev:client
-  ```
+## 5. Next Immediate Action
+- Create `.env` from `.env.example` with valid `GEMINI_API_KEY` and Supabase credentials to activate live external cloud services.

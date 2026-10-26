@@ -184,3 +184,4 @@ export const Step4AuthorityDuplicate: React.FC<Step4Props> = ({
     </div>
   );
 };
+

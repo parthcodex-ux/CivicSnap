@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import { complaintService } from '../services/complaint.service.js';
+import { storageService } from '../services/storage.service.js';
 import { authenticate } from '../middleware/auth.js';
+import { upload } from '../middleware/upload.js';
 import {
   CreateComplaintRequestSchema,
   NearbyDuplicateQuerySchema,
@@ -8,6 +10,42 @@ import {
 } from '@civicsnap/shared';
 
 export const complaintRouter = Router();
+
+// Upload evidence photo directly to private Supabase storage
+complaintRouter.post('/upload-evidence', authenticate, upload.single('photo'), async (req, res, next) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'FILE_REQUIRED',
+          message: 'An image file is required for evidence upload'
+        }
+      });
+    }
+
+    const userId = req.user!.id;
+    const complaintId = (req.body.complaintId as string) || 'temp';
+    const isResolutionProof = req.body.isResolutionProof === 'true';
+    const ext = req.file.mimetype.split('/')[1] || 'jpg';
+
+    const result = await storageService.uploadEvidence({
+      userId,
+      complaintId,
+      fileBuffer: req.file.buffer,
+      mimeType: req.file.mimetype,
+      fileExtension: ext,
+      isResolutionProof
+    });
+
+    return res.status(201).json({
+      success: true,
+      data: result
+    });
+  } catch (err) {
+    next(err);
+  }
+});
 
 // 1. Duplicate check endpoint
 complaintRouter.post('/check-duplicates', async (req, res, next) => {
@@ -93,3 +131,4 @@ complaintRouter.post('/:id/feedback', authenticate, async (req, res, next) => {
     next(err);
   }
 });
+

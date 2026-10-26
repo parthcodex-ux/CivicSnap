@@ -212,3 +212,4 @@ export const ResolutionModal: React.FC<ResolutionModalProps> = ({
     </div>
   );
 };
+

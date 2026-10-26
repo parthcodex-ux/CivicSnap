@@ -255,3 +255,4 @@ ${complaintData.description}`;
     </div>
   );
 };
+

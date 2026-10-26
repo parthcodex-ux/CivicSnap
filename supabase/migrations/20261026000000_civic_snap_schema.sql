@@ -248,5 +248,33 @@ CREATE POLICY "Users can submit feedback for their complaints"
     )
   );
 
--- 8. Storage bucket creation instructions
--- Bucket name: 'complaint-evidence' (Private bucket with RLS or signed URLs)
+-- 8. Storage bucket creation & private policies
+INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+VALUES (
+  'complaint-evidence',
+  'complaint-evidence',
+  FALSE,
+  10485760, -- 10MB
+  ARRAY['image/jpeg', 'image/png', 'image/webp']
+)
+ON CONFLICT (id) DO UPDATE SET
+  public = FALSE,
+  file_size_limit = 10485760,
+  allowed_mime_types = ARRAY['image/jpeg', 'image/png', 'image/webp'];
+
+-- Storage RLS: Users can upload evidence to their own user-isolated folder: <userId>/<complaintId>/<file>
+CREATE POLICY "Users can upload evidence files to private bucket"
+  ON storage.objects FOR INSERT
+  WITH CHECK (
+    bucket_id = 'complaint-evidence' AND
+    auth.uid()::text = (storage.foldername(name))[1]
+  );
+
+-- Storage RLS: Users can view their own evidence files in private bucket
+CREATE POLICY "Users can view their own evidence files in private bucket"
+  ON storage.objects FOR SELECT
+  USING (
+    bucket_id = 'complaint-evidence' AND
+    auth.uid()::text = (storage.foldername(name))[1]
+  );
+

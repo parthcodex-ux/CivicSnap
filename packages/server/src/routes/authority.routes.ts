@@ -32,3 +32,4 @@ authorityRouter.post('/resolve', (req, res, next) => {
     next(err);
   }
 });
+

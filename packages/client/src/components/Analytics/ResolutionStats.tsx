@@ -150,3 +150,4 @@ export const ResolutionStats: React.FC<StatsProps> = ({ lang }) => {
     </div>
   );
 };
+

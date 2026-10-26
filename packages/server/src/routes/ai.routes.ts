@@ -55,3 +55,4 @@ aiRouter.post('/analyze-image', upload.single('photo'), async (req, res, next) =
     next(err);
   }
 });
+
