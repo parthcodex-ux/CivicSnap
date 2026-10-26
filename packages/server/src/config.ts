@@ -1,8 +1,12 @@
 import dotenv from 'dotenv';
+import path from 'node:path';
 import { z } from 'zod';
 
-// Load environment variables from .env if present
+// Load environment variables from .env in current working dir or workspace root
 dotenv.config();
+dotenv.config({ path: path.resolve(process.cwd(), '../../.env') });
+dotenv.config({ path: path.resolve(process.cwd(), '../.env') });
+dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 
 const envSchema = z.object({
   PORT: z.string().default('4000').transform(val => parseInt(val, 10)),
@@ -11,6 +15,7 @@ const envSchema = z.object({
   GEMINI_API_KEY: z.string().optional(),
   GEMMA_MODEL_ID: z.string().default('models/gemma-4-26b-it'),
   SUPABASE_URL: z.string().url().optional(),
+  DATABASE_URL: z.string().optional(),
   SUPABASE_ANON_KEY: z.string().optional(),
   SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),
   SUPABASE_STORAGE_BUCKET: z.string().default('complaint-evidence'),

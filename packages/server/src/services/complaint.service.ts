@@ -48,16 +48,30 @@ export class ComplaintService {
   private memoryFeedback: Map<string, ResolutionFeedbackRecord> = new Map();
 
   constructor() {
-    if (config.SUPABASE_URL && (config.SUPABASE_SERVICE_ROLE_KEY || config.SUPABASE_ANON_KEY)) {
+    const hasValidKey = Boolean(
+      config.SUPABASE_ANON_KEY &&
+      !config.SUPABASE_ANON_KEY.includes('your_supabase_') &&
+      config.SUPABASE_ANON_KEY.length > 20
+    );
+
+    const hasValidServiceKey = Boolean(
+      config.SUPABASE_SERVICE_ROLE_KEY &&
+      !config.SUPABASE_SERVICE_ROLE_KEY.includes('your_supabase_') &&
+      config.SUPABASE_SERVICE_ROLE_KEY.length > 20
+    );
+
+    if (config.SUPABASE_URL && (hasValidKey || hasValidServiceKey)) {
       try {
-        const key = config.SUPABASE_SERVICE_ROLE_KEY || config.SUPABASE_ANON_KEY!;
-        this.supabase = createClient(config.SUPABASE_URL, key);
+        const key = hasValidServiceKey ? config.SUPABASE_SERVICE_ROLE_KEY! : config.SUPABASE_ANON_KEY!;
+        this.supabase = createClient(config.SUPABASE_URL, key, {
+          auth: { persistSession: false }
+        });
         console.log('✅ Supabase client initialized with persistent backend.');
       } catch (err) {
         console.warn('⚠️ Could not initialize Supabase client:', err);
       }
     } else {
-      console.log('ℹ️ Supabase credentials not provided. Using persistent local in-memory store.');
+      console.log('ℹ️ Valid Supabase credentials not provided. Using persistent local in-memory store.');
     }
   }
 
